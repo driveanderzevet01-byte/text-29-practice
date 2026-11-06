@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reading Practice · Londinium (Roman London)</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, system-ui, sans-serif; }
+        body { background: #f2f5f9; display: flex; justify-content: center; padding: 2rem 1.5rem; min-height: 100vh; }
+        .app-container { max-width: 1000px; width: 100%; background: white; border-radius: 32px; box-shadow: 0 20px 40px -12px rgba(0,20,30,0.25); padding: 2rem 2rem 2.5rem; }
+
+        /* --- start screen --- */
+        .start-screen { display: flex; flex-direction: column; align-items: center; gap: 1.8rem; padding: 1.5rem 0 0.5rem; }
+        .start-screen h1 { font-size: 2.1rem; font-weight: 600; color: #0b2b3b; border-bottom: 3px solid #3a7ca5; padding-bottom: 0.5rem; text-align: center; }
+        .form-group { width: 100%; max-width: 500px; display: flex; flex-direction: column; gap: 0.4rem; }
+        .form-group label { font-weight: 500; color: #1d3b4f; font-size: 1rem; }
+        .form-group input { padding: 0.9rem 1.2rem; border: 1.5px solid #cbdae6; border-radius: 60px; font-size: 1rem; outline: none; background: #fbfdff; transition: border .15s, box-shadow .15s; }
+        .form-group input:focus { border-color: #3a7ca5; box-shadow: 0 0 0 4px rgba(58,124,165,0.15); }
+        .btn { background: #1f5e7a; color: white; font-weight: 600; font-size: 1.1rem; padding: 0.9rem 2.5rem; border: none; border-radius: 60px; cursor: pointer; box-shadow: 0 6px 14px rgba(27,74,94,0.3); margin-top: 0.8rem; transition: background .2s, transform .1s; }
+        .btn:hover { background: #0f435b; }
+        .btn:active { transform: scale(0.97); }
+        .btn-secondary { background: #e7eef4; color: #1d3b4f; box-shadow: none; border: 1px solid #b8cfdf; font-weight: 500; }
+        .btn-secondary:hover { background: #d2e0ea; }
+
+        /* --- test screen --- */
+        .test-screen { display: flex; flex-direction: column; gap: 1.8rem; }
+        .user-badge { background: #e7f0f7; border-radius: 40px; padding: 0.6rem 1.5rem; display: inline-flex; align-items: center; gap: 0.6rem; font-size: 0.95rem; color: #1d3b4f; align-self: flex-start; border: 1px solid #c2d8e8; flex-wrap: wrap; }
+        .user-badge span { font-weight: 600; color: #0a3142; }
+        
+        .reading-section { background: #f8fbfe; border-radius: 24px; padding: 1.5rem 1.8rem; border-left: 6px solid #3a7ca5; max-height: 400px; overflow-y: auto; font-size: 0.96rem; line-height: 1.65; color: #1e2f3a; margin-bottom: 1rem; scrollbar-width: thin; }
+        .reading-section h3 { font-size: 1.2rem; font-weight: 600; color: #123b4e; margin-bottom: 0.6rem; letter-spacing: -0.01em; }
+        .reading-section p { margin-bottom: 0.8rem; }
+        .reading-section p:last-child { margin-bottom: 0; }
+
+        .question-list { display: flex; flex-direction: column; gap: 1.4rem; margin: 0.5rem 0 0.8rem; }
+        .question-item { background: #ffffff; border-radius: 20px; padding: 1.2rem 1.6rem; border: 1px solid #d9e5f0; transition: box-shadow .2s; }
+        .question-item:hover { box-shadow: 0 6px 16px rgba(0,33,55,0.06); }
+        .question-text { font-weight: 500; font-size: 1.05rem; color: #0a293b; margin-bottom: 0.7rem; display: flex; gap: 8px; flex-wrap: wrap; }
+        .question-number { font-weight: 700; color: #3a7ca5; min-width: 1.8rem; }
+        
+        /* === LETTERED OPTIONS (a, b, c, d) === */
+        .options { display: flex; flex-direction: column; gap: 0.5rem; margin-left: 2rem; padding-left: 0.5rem; border-left: 2px solid #e2ecf5; }
+        .option { display: flex; align-items: flex-start; gap: 0.55rem; font-size: 0.98rem; color: #1f4055; padding: 0.2rem 0; cursor: pointer; }
+        .option input[type="radio"] { margin-top: 0.25rem; accent-color: #2c6f8f; width: 1.05rem; height: 1.05rem; cursor: pointer; flex-shrink: 0; }
+        .opt-letter { font-weight: 600; color: #3a7ca5; min-width: 1.3rem; }
+        .opt-text { flex: 1; }
+
+        .submit-container { display: flex; justify-content: flex-end; margin-top: 1.2rem; }
+
+        /* --- result screen --- */
+        .result-screen { display: flex; flex-direction: column; gap: 1.8rem; }
+        .result-header { background: linear-gradient(145deg, #e2eef9, #d1e2f0); padding: 1.6rem 2rem; border-radius: 28px; display: flex; flex-wrap: wrap; justify-content: space-between; align-items: center; gap: 1rem; }
+        .result-header .info h2 { font-size: 1.5rem; font-weight: 600; color: #0a2f40; margin-bottom: 0.2rem; }
+        .result-header .info p { font-size: 1rem; color: #1d4b61; display: flex; flex-wrap: wrap; gap: 0.8rem 1.8rem; }
+        .result-header .info span.value { font-weight: 700; color: #103d52; }
+        .score-box { background: #1e4e63; color: white; padding: 0.9rem 2rem; border-radius: 60px; font-weight: 700; font-size: 1.9rem; display: flex; align-items: baseline; gap: 0.3rem; box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+        .score-box small { font-size: 1rem; font-weight: 400; opacity: 0.9; margin-left: 0.3rem; }
+
+        .review-list { display: flex; flex-direction: column; gap: 1rem; }
+        .review-item { background: #ffffff; border-radius: 18px; padding: 1.2rem 1.6rem; border-left: 6px solid #b0c9db; display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.6rem 1.2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
+        .review-item.correct { border-left-color: #2a9d8f; background: #f5fdfb; }
+        .review-item.incorrect { border-left-color: #d45a5a; background: #fef7f7; }
+        .review-q { font-weight: 600; color: #123b4e; display: flex; gap: 10px; flex: 1 1 200px; flex-wrap: wrap; }
+        .review-detail { display: flex; flex-wrap: wrap; gap: 1.2rem 2rem; font-size: 0.95rem; color: #1e3f52; }
+        .review-detail .item { display: flex; gap: 0.6rem; }
+        .review-detail .label { font-weight: 500; color: #4f6f82; }
+        .correct-ans { color: #1d7a6b; font-weight: 600; }
+        .wrong-ans { color: #b33f3f; font-weight: 600; }
+        .badge-ok { background: #dff3ef; color: #1d6b5e; padding: 0.1rem 0.8rem; border-radius: 40px; font-size: 0.8rem; font-weight: 600; }
+        .back-link { margin-top: 0.5rem; text-align: center; }
+
+        .hidden { display: none !important; }
+
+        .reading-section::-webkit-scrollbar { width: 6px; }
+        .reading-section::-webkit-scrollbar-track { background: #e7eef4; border-radius: 10px; }
+        .reading-section::-webkit-scrollbar-thumb { background: #b1c9db; border-radius: 10px; }
+
+        @media (max-width: 700px) {
+            .app-container { padding: 1.5rem; }
+            .result-header { flex-direction: column; align-items: flex-start; }
+            .options { margin-left: 1rem; }
+            .question-text { font-size: 1rem; }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container" id="appContainer">
+        <!-- START SCREEN -->
+        <div id="startScreen" class="start-screen">
+            <h1>📖 Reading Practice · Londinium</h1>
+            <div class="form-group">
+                <label for="fullName">Full name</label>
+                <input type="text" id="fullName" placeholder="e.g., Alex Rivera" autocomplete="off">
+            </div>
+            <div class="form-group">
+                <label for="studyProgram">Study program</label>
+                <input type="text" id="studyProgram" placeholder="e.g., History, English Literature" autocomplete="off">
+            </div>
+            <button class="btn" id="startBtn">Next →</button>
+        </div>
+
+        <!-- TEST SCREEN -->
+        <div id="testScreen" class="test-screen hidden">
+            <div class="user-badge" id="userBadge">
+                👤 <span id="badgeName"></span> · <span id="badgeProgram"></span>
+            </div>
+
+            <!-- Reading Passage -->
+            <div class="reading-section">
+                <h3>The History of Londinium</h3>
+                <p>In the year AD 43, Roman soldiers seeking to expand the Roman Empire entered Britannia, the island currently known as Great Britain. Thereafter, around AD 47, the Romans established a town among the pristine rolling hills on the quiet banks of the river Thames. Built on the site of modern-day London, the city was known to the Romans by its Latin name, Londinium.</p>
+                <p>The precise positioning of Londinium was probably due to its favorable location. There, the river was broad and deep enough to support sea-going vessels, but narrow enough for bridge construction. Some scholars believe it was originally conceived as a military outpost, but very few early fortifications have been unearthed in archaeological excavations. In addition, there is evidence to suggest that it functioned primarily as a civilian city less than a century after its founding. The discoveries of looms for weaving clothing, an amphitheater, underground irrigation networks, and coins all attest to the commercial vivacity of the young city. Leatherworks, potteries, mills, and other factories sprang up sporadically around the city, and the square in the city's center held scores of shops.</p>
+                <p>Historical documents also support the notion of young Londinium as being mainly a civilian city. In AD 109, the Roman historian Tacitus described Londinium as "a busy commercial center for trade and traders." He also recorded that in AD 60, Boudica, queen of the Iceni tribe that had colonized the area northeast of Londinium, led a revolt against Roman towns in southeast Britannia, sacking Roman villages and burning entire communities, including Londinium, to the ground. Her success indicates that the city was probably not heavily fortified at the time of the invasion. Furthermore, historical records claim that the rebuilding of Londinium after Boudica's invasion was accomplished under the direct supervision of Gaius Alpinus Classicianus, the financial minister in Rome's province of Britannia. This fact indicates that civilian officials in Londinium were awarded the utmost level of power and responsibility.</p>
+                <p>Regardless of why the city was initially founded, Londinium soon attracted settlers who engaged in manufacturing and trade, and the city became an important commercial hub for exchange between Britannia and Roman colonies on the mainland. By the middle of the second century AD, Londinium had grown from a small provincial town to a city of close to fifty thousand. After that time, however, the city mysteriously declined, and little is known about Londinium during the Middle Ages.</p>
+            </div>
+
+            <!-- Questions -->
+            <div class="question-list" id="questionList"></div>
+
+            <div class="submit-container">
+                <button class="btn" id="submitBtn">Submit test ✓</button>
+            </div>
+        </div>
+
+        <!-- RESULT SCREEN -->
+        <div id="resultScreen" class="result-screen hidden">
+            <div class="result-header" id="resultHeader"></div>
+            <div class="review-list" id="reviewList"></div>
+            <div class="back-link">
+                <button class="btn btn-secondary" id="restartBtn">↺ Take again</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function() {
+            // 20 Questions (Answers mapped from the provided key)
+            const questions = [
+                { text: "Why did the Romans establish Londinium near the River Thames?", options: ["It was close to mountains", "It had a favorable location", "It was rich in gold", "It was far from trade routes"], answer: 1 }, // b
+                { text: "Which discovery suggests Londinium was a commercial city?", options: ["Coins", "Temples", "Weapons", "Statues"], answer: 0 }, // a
+                { text: "According to Tacitus, Londinium was mainly a", options: ["military base", "farming village", "religious center", "trade center"], answer: 3 }, // d
+                { text: "What does Boudica's successful attack suggest about Londinium?", options: ["It was overcrowded", "It lacked defenses", "It had no government", "It was abandoned"], answer: 1 }, // b
+                { text: "What helped Londinium become an important commercial hub?", options: ["Its universities", "Its navy", "Manufacturing and trade", "Religious festivals"], answer: 2 }, // c
+                { text: "What happened to Londinium after the middle of the second century AD?", options: ["It became a capital", "It was renamed", "It expanded rapidly", "It declined"], answer: 3 }, // d
+                { text: "The word \"pristine\" is closest in meaning to", options: ["polluted", "ancient", "untouched", "crowded"], answer: 2 }, // c
+                { text: "The word \"vivacity\" is closest in meaning to", options: ["energy", "silence", "weakness", "poverty"], answer: 0 }, // a
+                { text: "The word \"unearthed\" is closest in meaning to", options: ["hidden", "discovered", "removed", "buried"], answer: 1 }, // b
+                { text: "The word \"fortified\" is closest in meaning to", options: ["defended", "damaged", "decorated", "enlarged"], answer: 0 }, // a
+                { text: "The word \"attest\" is closest in meaning to", options: ["deny", "explain", "prove", "replace"], answer: 2 }, // c
+                { text: "The word \"sporadically\" is closest in meaning to", options: ["regularly", "suddenly", "carefully", "occasionally"], answer: 3 }, // d
+                { text: "What was one reason Londinium was suitable for settlement?", options: ["It had fertile farmland", "It had access to deep and navigable water", "It was surrounded by mountains", "It was close to military camps"], answer: 1 }, // b
+                { text: "What evidence suggests that Londinium developed beyond its original purpose?", options: ["The growth of trade and civilian activities", "The construction of defensive walls", "The arrival of Roman soldiers", "The discovery of ancient battlefields"], answer: 0 }, // a
+                { text: "What does the rebuilding of Londinium after Boudica's revolt indicate?", options: ["Military leaders controlled the city", "The city was permanently abandoned", "Civilian officials held significant authority", "Roman soldiers left Britannia"], answer: 2 }, // c
+                { text: "How did Londinium develop by the middle of the second century AD?", options: ["It became a small military outpost", "It developed into a major commercial city", "It lost its connection with Roman colonies", "It became an agricultural settlement"], answer: 1 }, // b
+                { text: "Which statement best describes the history of Londinium?", options: ["It remained a military settlement throughout Roman rule", "It developed through trade but later experienced an unexplained decline", "It was established mainly for religious activities", "It became the largest city in the Roman Empire"], answer: 1 }, // b
+                { text: "The word \"outpost\" is closest in meaning to:", options: ["Trading center", "Remote military station", "Residential area", "Public marketplace"], answer: 1 }, // b
+                { text: "The word \"amphitheater\" is closest in meaning to:", options: ["A public entertainment venue", "A place for storing goods", "A building for religious worship", "A military training ground"], answer: 0 }, // a
+                { text: "The word \"sacking\" is closest in meaning to:", options: ["Rebuilding", "Protecting", "Looting and destroying", "Abandoning"], answer: 2 } // c
+            ];
+
+            let userAnswers = new Array(questions.length).fill(null);
+            let fullName = '';
+            let studyProgram = '';
+            let startTime = null;
+            let testCompleted = false;
+
+            const startScreen = document.getElementById('startScreen');
+            const testScreen = document.getElementById('testScreen');
+            const resultScreen = document.getElementById('resultScreen');
+            const fullNameInput = document.getElementById('fullName');
+            const studyProgramInput = document.getElementById('studyProgram');
+            const startBtn = document.getElementById('startBtn');
+            const submitBtn = document.getElementById('submitBtn');
+            const restartBtn = document.getElementById('restartBtn');
+            const questionList = document.getElementById('questionList');
+            const badgeName = document.getElementById('badgeName');
+            const badgeProgram = document.getElementById('badgeProgram');
+            const resultHeader = document.getElementById('resultHeader');
+            const reviewList = document.getElementById('reviewList');
+
+            function renderQuestions() {
+                if (!questionList) return;
+                let html = '';
+                questions.forEach((q, idx) => {
+                    const qNum = idx + 1;
+                    html += `<div class="question-item" id="q-${idx}">`;
+                    html += `<div class="question-text"><span class="question-number">${qNum}.</span> <span class="question-body">${q.text}</span></div>`;
+                    html += `<div class="options">`;
+                    q.options.forEach((opt, optIdx) => {
+                        const letter = String.fromCharCode(97 + optIdx);
+                        const checked = (userAnswers[idx] === optIdx) ? 'checked' : '';
+                        html += `<label class="option">
+                                    <input type="radio" name="q${idx}" value="${optIdx}" data-qidx="${idx}" ${checked}>
+                                    <span class="opt-letter">${letter}.</span>
+                                    <span class="opt-text">${opt}</span>
+                                 </label>`;
+                    });
+                    html += `</div></div>`;
+                });
+                questionList.innerHTML = html;
+
+                document.querySelectorAll('input[type="radio"]').forEach(radio => {
+                    radio.addEventListener('change', function() {
+                        const qIdx = parseInt(this.dataset.qidx);
+                        const val = parseInt(this.value);
+                        if (!isNaN(qIdx) && !isNaN(val)) userAnswers[qIdx] = val;
+                    });
+                });
+            }
+
+            function formatDuration(ms) {
+                const totalSec = Math.floor(ms / 1000);
+                return `${Math.floor(totalSec / 60)} min ${totalSec % 60} sec`;
+            }
+
+            function showTestScreen() {
+                startScreen.classList.add('hidden');
+                resultScreen.classList.add('hidden');
+                testScreen.classList.remove('hidden');
+                badgeName.textContent = fullName || 'Student';
+                badgeProgram.textContent = studyProgram || '—';
+                renderQuestions();
+            }
+
+            function startTest() {
+                const name = fullNameInput.value.trim();
+                const program = studyProgramInput.value.trim();
+                if (!name) { alert('Please enter your full name.'); return; }
+                if (!program) { alert('Please enter your study program.'); return; }
+                fullName = name;
+                studyProgram = program;
+                userAnswers = new Array(questions.length).fill(null);
+                startTime = Date.now();
+                testCompleted = false;
+                showTestScreen();
+            }
+
+            function computeScore() {
+                let correct = 0;
+                questions.forEach((q, idx) => { if (userAnswers[idx] === q.answer) correct++; });
+                return { correct, total: questions.length };
+            }
+
+            function showResult() {
+                const durationMs = Date.now() - startTime;
+                const timeStr = formatDuration(durationMs);
+                const { correct, total } = computeScore();
+
+                resultHeader.innerHTML = `
+                    <div class="info">
+                        <h2>${fullName}</h2>
+                        <p>
+                            <span>📚 <span class="value">${studyProgram}</span></span>
+                            <span>⏱️ Time taken: <span class="value">${timeStr}</span></span>
+                        </p>
+                    </div>
+                    <div class="score-box">${correct}<small>/${total}</small></div>
+                `;
+
+                let reviewHtml = '';
+                questions.forEach((q, idx) => {
+                    const userAns = userAnswers[idx];
+                    const isCorrect = (userAns === q.answer);
+                    const userLetter = (userAns !== null && userAns !== undefined) ? String.fromCharCode(97 + userAns) : '—';
+                    const correctLetter = String.fromCharCode(97 + q.answer);
+                    const userText = (userAns !== null && userAns !== undefined) ? q.options[userAns] : 'Not answered';
+                    const correctText = q.options[q.answer];
+
+                    reviewHtml += `<div class="review-item ${isCorrect ? 'correct' : 'incorrect'}">
+                        <div class="review-q"><span class="question-number">${idx+1}.</span> <span class="question-body">${q.text}</span></div>
+                        <div class="review-detail">
+                            <div class="item"><span class="label">Your answer:</span> 
+                                <span class="${isCorrect ? 'correct-ans' : 'wrong-ans'}">${userLetter}. ${userText}</span>
+                            </div>
+                            <div class="item"><span class="label">Key:</span> 
+                                <span class="correct-ans">${correctLetter}. ${correctText}</span>
+                            </div>
+                            ${isCorrect ? '<span class="badge-ok">✓ correct</span>' : ''}
+                        </div>
+                    </div>`;
+                });
+                reviewList.innerHTML = reviewHtml;
+
+                startScreen.classList.add('hidden');
+                testScreen.classList.add('hidden');
+                resultScreen.classList.remove('hidden');
+            }
+
+            function onSubmit() {
+                const missing = userAnswers.some(a => a === null || a === undefined);
+                if (missing) {
+                    if (!confirm('Some questions are unanswered. Submit anyway?')) return;
+                }
+                if (testCompleted) return;
+                testCompleted = true;
+                showResult();
+            }
+
+            function restart() {
+                userAnswers = new Array(questions.length).fill(null);
+                fullName = ''; studyProgram = ''; startTime = null; testCompleted = false;
+                fullNameInput.value = ''; studyProgramInput.value = '';
+                startScreen.classList.remove('hidden');
+                testScreen.classList.add('hidden');
+                resultScreen.classList.add('hidden');
+            }
+
+            startBtn.addEventListener('click', startTest);
+            submitBtn.addEventListener('click', onSubmit);
+            restartBtn.addEventListener('click', restart);
+            fullNameInput.addEventListener('keypress', e => { if (e.key === 'Enter') { e.preventDefault(); studyProgramInput.focus(); } });
+            studyProgramInput.addEventListener('keypress', e => { if (e.key === 'Enter') { e.preventDefault(); startTest(); } });
+        })();
+    </script>
+</body>
+</html>
